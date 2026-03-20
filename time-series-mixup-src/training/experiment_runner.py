@@ -4,14 +4,15 @@ from typing import Dict, Any, List
 import json
 from pathlib import Path
 
-from ..data.uae_manager import UAEDatasetManager
-from ..models.model_factory import ModelFactory
+from data.uae_manager import UAEDatasetManager
+from models.model_factory import ModelFactory
+from utils.result_saver import ResultSaver
+from utils.memory_utils import log_memory_usage, clear_memory
 from ..augmentations.augmentation_pipeline import create_augmentation_pipeline
 from ..augmentations.adaptive_mixup import AdaptiveMixup
 from ..augmentations.mixup import Mixup
 from .trainer import Trainer
-from ..utils.result_saver import ResultSaver
-from ..utils.memory_utils import log_memory_usage
+
 
 class ExperimentRunner:
     """实验运行器"""
