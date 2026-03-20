@@ -1,0 +1,151 @@
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# ============================================
+# Distribution / packaging
+# ============================================
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ============================================
+# PyInstaller
+# ============================================
+*.manifest
+*.spec
+
+# ============================================
+# Testing
+# ============================================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ============================================
+# Jupyter Notebook
+# ============================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+*.pyc
+*.pynb
+
+# ============================================
+# Kaggle specific
+# ============================================
+/kaggle/
+/kaggle/working/
+/kaggle/input/
+/kaggle/output/
+*.kaggle
+
+# ============================================
+# Data files
+# ============================================
+*.csv
+*.tsv
+*.xlsx
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.joblib
+data/
+datasets/
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# ============================================
+# Model files
+# ============================================
+*.pt
+*.pth
+*.bin
+*.onnx
+*.h5
+*.pb
+*.ckpt
+*.safetensors
+checkpoints/
+models/*.pth
+models/*.pt
+
+# ============================================
+# Results and logs
+# ============================================
+results/
+logs/
+*.log
+*.out
+*.err
+*.json
+*.csv
+!requirements.txt
+!*.yaml
+!*.yml
+
+# ============================================
+# IDE
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-*
+
+# ============================================
+# Environment
+# ============================================
+.env
+.envrc
+.venv
+.conda
+.spyproject/
+
+# ============================================
+# Miscellaneous
+# ============================================
+*.bak
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+Thumbs.db
