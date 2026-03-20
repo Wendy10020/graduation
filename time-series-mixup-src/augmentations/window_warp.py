@@ -1,4 +1,5 @@
 import torch
+from typing import Optional
 from .base_augmentation import BaseAugmentation
 from .common import resize_time_series, cut_time_series
 

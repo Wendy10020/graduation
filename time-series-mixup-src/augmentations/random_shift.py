@@ -1,4 +1,5 @@
 import torch
+from typing import Optional
 from .base_augmentation import BaseAugmentation
 
 class RandomShifter(BaseAugmentation):
@@ -41,4 +42,3 @@ class RandomShifter(BaseAugmentation):
             x = x.permute(1, 0)
             
         return x
-    

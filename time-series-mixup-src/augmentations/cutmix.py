@@ -1,4 +1,5 @@
 import torch
+from typing import Optional
 from .base_augmentation import BaseAugmentation
 
 class Cutmix(BaseAugmentation):

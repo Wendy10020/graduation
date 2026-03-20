@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from typing import Optional
 from .base_augmentation import BaseAugmentation
 
 class Mixup(BaseAugmentation):
@@ -26,3 +27,6 @@ class Mixup(BaseAugmentation):
         y_mixed = lam.squeeze() * y + (1 - lam.squeeze()) * y_shuffled
         
         return x_mixed, y_mixed
+    
+    def check_proba(self):
+        return torch.rand(1).item() <= self.do_prob
