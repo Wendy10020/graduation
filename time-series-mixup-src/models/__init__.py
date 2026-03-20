@@ -1,3 +1,7 @@
+"""
+Model implementations for time series classification.
+"""
+
 from .inception_time import InceptionTime
 from .simple_rnn import SimpleRNN
 from .simple_mhsa import SimpleMHSA
@@ -8,7 +12,7 @@ from .model_factory import ModelFactory
 
 __all__ = [
     'InceptionTime',
-    'SimpleRNN', 
+    'SimpleRNN',
     'SimpleMHSA',
     'ConvMHSA',
     'InceptionMHSA',

@@ -1,3 +1,7 @@
+"""
+Data augmentation module for time series classification.
+"""
+
 from .base_augmentation import BaseAugmentation
 from .random_shift import RandomShifter
 from .window_warp import WindowWarp
