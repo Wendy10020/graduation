@@ -1,0 +1,69 @@
+📦 time_series_mixup_benchmark/
+│
+├── 📂 configs/
+│   ├── base_config.yaml
+│   ├── short_datasets_config.yaml
+│   ├── long_datasets_config.yaml
+│   └── adaptive_mixup_config.yaml
+│
+├── 📂 data/
+│   ├── __init__.py
+│   ├── dataset_manager.py
+│   ├── uae_manager.py
+│   └── data_utils.py
+│
+├── 📂 models/
+│   ├── __init__.py
+│   ├── model_factory.py
+│   ├── inception_time.py
+│   ├── simple_rnn.py
+│   ├── simple_mhsa.py
+│   ├── conv_mhsa.py
+│   ├── inception_mhsa.py
+│   ├── rocket.py
+│   └── attention/
+│       ├── __init__.py
+│       ├── common.py
+│       ├── multi_head_attention.py
+│       ├── encoder_layer.py
+│       └── positional_encoding.py
+│
+├── 📂 augmentations/
+│   ├── __init__.py
+│   ├── base_augmentation.py
+│   ├── random_shift.py
+│   ├── window_warp.py
+│   ├── cutout.py
+│   ├── cutmix.py
+│   ├── mixup.py
+│   ├── adaptive_mixup.py
+│   └── augmentation_pipeline.py
+│
+├── 📂 losses/
+│   ├── __init__.py
+│   ├── focal_loss.py
+│   └── combined_loss.py
+│
+├── 📂 training/
+│   ├── __init__.py
+│   ├── trainer.py
+│   ├── evaluator.py
+│   └── experiment_runner.py
+│
+├── 📂 utils/
+│   ├── __init__.py
+│   ├── config_loader.py
+│   ├── memory_utils.py
+│   ├── logger.py
+│   └── result_saver.py
+│
+├── 📂 scripts/
+│   ├── run_all_experiments.py
+│   ├── run_short_datasets.py
+│   └── run_long_datasets.py
+│
+├── 📂 notebooks/
+│   └── kaggle_setup.ipynb
+│
+├── requirements.txt
+└── README.md

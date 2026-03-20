@@ -1,0 +1,54 @@
+include: base_config.yaml
+
+# 自适应Mixup详细配置
+adaptive_mixup:
+  enabled: true
+  
+  class_feature_extraction:
+    method: "model_features"  # 可选: "raw_data", "model_features"
+    feature_extractor: "InceptionTime"
+  
+  strategy:
+    minority_threshold: 0.3
+    lambda_ranges:
+      intra_class: [0.7, 0.9]
+      inter_class_similar: [0.5, 0.7]
+      inter_class_distinct: [0.2, 0.4]
+    
+    similarity:
+      metric: "cosine"
+      threshold: 0.6
+  
+  precompute_class_distances: true
+  distance_cache_dir: "/kaggle/working/class_distances"
+
+# 专门用于自适应Mixup的实验配置
+datasets:
+  - name: "ArticularyWordRecognition"
+    n_classes: 25
+    n_channels: 9
+    n_timesteps: 144
+
+models:
+  - name: "InceptionTime"
+    enabled: true
+    config:
+      nb_filters: 32
+      depth: 6
+  - name: "SimpleRNN"
+    enabled: true
+    config:
+      hidden_size: 256
+  - name: "SimpleMHSA"
+    enabled: true
+    config:
+      d_model: 512
+      num_heads: 8
+
+augmentations:
+  - name: "adaptive_mixup"
+    enabled: true
+    strategies: ["adaptive"]
+    config:
+      alpha: 1.0
+      do_prob: 0.5

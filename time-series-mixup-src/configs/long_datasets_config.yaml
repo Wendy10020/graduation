@@ -1,0 +1,89 @@
+include: base_config.yaml
+
+# 长数据集配置（长度>512）
+datasets:
+  - name: "Cricket"
+    n_classes: 12
+    n_channels: 6
+    n_timesteps: 1197
+  - name: "DuckDuckGeese"
+    n_classes: 5
+    n_channels: 1345
+    n_timesteps: 270
+  - name: "EigenWorms"
+    n_classes: 5
+    n_channels: 6
+    n_timesteps: 17984
+  - name: "EthanolConcentration"
+    n_classes: 4
+    n_channels: 3
+    n_timesteps: 1751
+  - name: "Heartbeat"
+    n_classes: 2
+    n_channels: 61
+    n_timesteps: 405
+  - name: "MotorImagery"
+    n_classes: 2
+    n_channels: 64
+    n_timesteps: 3000
+  - name: "SelfRegulationSCP1"
+    n_classes: 2
+    n_channels: 6
+    n_timesteps: 896
+  - name: "SelfRegulationSCP2"
+    n_classes: 2
+    n_channels: 7
+    n_timesteps: 1152
+  - name: "StandWalkJump"
+    n_classes: 3
+    n_channels: 4
+    n_timesteps: 2500
+
+models:
+  - name: "InceptionTime"
+    enabled: true
+    config:
+      nb_filters: 32
+      depth: 6
+      kernel_size: 41
+      use_residual: true
+      use_bottleneck: true
+  - name: "SimpleRNN"
+    enabled: false
+  - name: "SimpleMHSA"
+    enabled: false
+
+augmentations:
+  - name: "standard_mixup"
+    enabled: true
+    strategies: ["random", "intra", "inter"]
+    config:
+      alpha: 1.0
+      do_prob: 0.5
+  - name: "adaptive_mixup"
+    enabled: true
+    strategies: ["adaptive"]
+    config:
+      alpha: 1.0
+      do_prob: 0.5
+  - name: "window_warp"
+    enabled: true
+    config:
+      min_window_size_ratio: 0.125
+      max_window_size_ratio: 0.333
+      scale_factor: 2.0
+      do_prob: 0.5
+  - name: "cutout"
+    enabled: true
+    config:
+      min_cutout_len_ratio: 0.25
+      max_cutout_len_ratio: 0.5
+      channel_drop_prob: 0.3
+      do_prob: 0.5
+  - name: "cutmix"
+    enabled: true
+    config:
+      min_cutmix_len_ratio: 0.25
+      max_cutmix_len_ratio: 0.5
+      channel_replace_prob: 0.3
+      do_prob: 0.5

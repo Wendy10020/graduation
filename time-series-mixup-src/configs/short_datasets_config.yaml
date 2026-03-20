@@ -1,0 +1,172 @@
+include: base_config.yaml
+
+# 短数据集配置（长度≤512）
+datasets:
+  - name: "ArticularyWordRecognition"
+    n_classes: 25
+    n_channels: 9
+    n_timesteps: 144
+  - name: "AtrialFibrillation"
+    n_classes: 3
+    n_channels: 2
+    n_timesteps: 640
+  - name: "BasicMotions"
+    n_classes: 4
+    n_channels: 6
+    n_timesteps: 100
+  - name: "Cricket"
+    n_classes: 12
+    n_channels: 6
+    n_timesteps: 1197
+  - name: "DuckDuckGeese"
+    n_classes: 5
+    n_channels: 1345
+    n_timesteps: 270
+  - name: "ERing"
+    n_classes: 6
+    n_channels: 4
+    n_timesteps: 65
+  - name: "EigenWorms"
+    n_classes: 5
+    n_channels: 6
+    n_timesteps: 17984
+  - name: "Epilepsy"
+    n_classes: 4
+    n_channels: 3
+    n_timesteps: 206
+  - name: "EthanolConcentration"
+    n_classes: 4
+    n_channels: 3
+    n_timesteps: 1751
+  - name: "FaceDetection"
+    n_classes: 2
+    n_channels: 144
+    n_timesteps: 62
+  - name: "FingerMovements"
+    n_classes: 2
+    n_channels: 28
+    n_timesteps: 50
+  - name: "HandMovementDirection"
+    n_classes: 4
+    n_channels: 10
+    n_timesteps: 400
+  - name: "Handwriting"
+    n_classes: 26
+    n_channels: 3
+    n_timesteps: 152
+  - name: "Heartbeat"
+    n_classes: 2
+    n_channels: 61
+    n_timesteps: 405
+  - name: "LSST"
+    n_classes: 14
+    n_channels: 6
+    n_timesteps: 36
+  - name: "Libras"
+    n_classes: 15
+    n_channels: 2
+    n_timesteps: 45
+  - name: "MotorImagery"
+    n_classes: 2
+    n_channels: 64
+    n_timesteps: 3000
+  - name: "NATOPS"
+    n_classes: 6
+    n_channels: 24
+    n_timesteps: 51
+  - name: "PEMS-SF"
+    n_classes: 7
+    n_channels: 963
+    n_timesteps: 144
+  - name: "PenDigits"
+    n_classes: 10
+    n_channels: 2
+    n_timesteps: 8
+  - name: "PhonemeSpectra"
+    n_classes: 39
+    n_channels: 11
+    n_timesteps: 217
+  - name: "RacketSports"
+    n_classes: 4
+    n_channels: 6
+    n_timesteps: 30
+  - name: "SelfRegulationSCP1"
+    n_classes: 2
+    n_channels: 6
+    n_timesteps: 896
+  - name: "SelfRegulationSCP2"
+    n_classes: 2
+    n_channels: 7
+    n_timesteps: 1152
+  - name: "StandWalkJump"
+    n_classes: 3
+    n_channels: 4
+    n_timesteps: 2500
+  - name: "UWaveGestureLibrary"
+    n_classes: 8
+    n_channels: 3
+    n_timesteps: 315
+
+models:
+  - name: "InceptionTime"
+    enabled: true
+    config:
+      nb_filters: 32
+      depth: 6
+      kernel_size: 41
+      use_residual: true
+      use_bottleneck: true
+  
+  - name: "SimpleRNN"
+    enabled: true
+    config:
+      hidden_size: 256
+      num_layers: 3
+  
+  - name: "SimpleMHSA"
+    enabled: true
+    config:
+      d_model: 512
+      num_heads: 8
+      dff: 512
+
+augmentations:
+  - name: "standard_mixup"
+    enabled: true
+    strategies: ["random", "intra", "inter"]
+    config:
+      alpha: 1.0
+      do_prob: 0.5
+  
+  - name: "adaptive_mixup"
+    enabled: true
+    strategies: ["adaptive"]
+    config:
+      alpha: 1.0
+      do_prob: 0.5
+      minority_threshold: 0.3
+      similarity_threshold: 0.7
+  
+  - name: "window_warp"
+    enabled: true
+    config:
+      min_window_size_ratio: 0.125
+      max_window_size_ratio: 0.333
+      scale_factor: 2.0
+      do_prob: 0.5
+  
+  - name: "cutout"
+    enabled: true
+    config:
+      min_cutout_len_ratio: 0.25
+      max_cutout_len_ratio: 0.5
+      channel_drop_prob: 0.3
+      do_prob: 0.5
+  
+  - name: "cutmix"
+    enabled: true
+    config:
+      min_cutmix_len_ratio: 0.25
+      max_cutmix_len_ratio: 0.5
+      channel_replace_prob: 0.3
+      do_prob: 0.5
