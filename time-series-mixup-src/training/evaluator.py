@@ -1,7 +1,12 @@
+"""
+模型评估器
+"""
+
 import torch
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, List, Tuple
+
 
 class Evaluator:
     """评估器"""
@@ -30,8 +35,8 @@ class Evaluator:
         
         results = {
             'accuracy': accuracy_score(all_targets, all_preds),
-            'f1_macro': f1_score(all_targets, all_preds, average='macro'),
-            'f1_weighted': f1_score(all_targets, all_preds, average='weighted'),
+            'f1_macro': f1_score(all_targets, all_preds, average='macro', zero_division=0),
+            'f1_weighted': f1_score(all_targets, all_preds, average='weighted', zero_division=0),
             'confusion_matrix': confusion_matrix(all_targets, all_preds),
             'predictions': all_preds,
             'targets': all_targets

@@ -1,3 +1,7 @@
+"""
+模型训练器
+"""
+
 import torch
 import torch.nn as nn
 from torch.cuda.amp import GradScaler, autocast
@@ -5,6 +9,10 @@ from tqdm import tqdm
 import numpy as np
 from typing import Optional, Dict, Any, Tuple
 import time
+
+# 使用绝对导入
+from losses.focal_loss import FocalLoss, AdaptiveFocalLoss
+
 
 class Trainer:
     """模型训练器"""
@@ -31,23 +39,23 @@ class Trainer:
         )
         
         # 混合精度训练
-        self.use_amp = config['environment'].get('mixed_precision', False)
+        self.use_amp = config.get('environment', {}).get('mixed_precision', False)
         self.scaler = GradScaler() if self.use_amp else None
         
         self.model.to(self.device)
         
     def _create_loss_function(self, class_statistics: Optional[Dict] = None) -> nn.Module:
         """创建损失函数"""
-        loss_config = self.config['loss']
+        loss_config = self.config.get('loss', {})
         
-        if loss_config['type'] == 'focal':
-            from losses.focal_loss import FocalLoss
+        loss_type = loss_config.get('type', 'focal')
+        
+        if loss_type == 'focal':
             return FocalLoss(
                 gamma=loss_config.get('focal_gamma', 2.0),
                 alpha=loss_config.get('focal_alpha', None)
             )
-        elif loss_config['type'] == 'adaptive_focal':
-            from losses.focal_loss import AdaptiveFocalLoss
+        elif loss_type == 'adaptive_focal':
             return AdaptiveFocalLoss(class_statistics)
         else:
             return nn.CrossEntropyLoss()
@@ -68,10 +76,12 @@ class Trainer:
             if augmentation is not None:
                 if hasattr(augmentation, 'forward'):
                     result = augmentation(data, target)
-                    if len(result) == 3:
+                    if isinstance(result, tuple) and len(result) == 3:
                         data, target, mixup_info = result
-                    else:
+                    elif isinstance(result, tuple) and len(result) == 2:
                         data, target = result
+            else:
+                data, target = data, target
             
             # 前向传播
             self.optimizer.zero_grad()
@@ -79,7 +89,7 @@ class Trainer:
             if self.use_amp:
                 with autocast():
                     output = self.model(data)
-                    if mixup_info is not None:
+                    if mixup_info is not None and hasattr(self.criterion, 'forward'):
                         loss = self.criterion(output, target, mixup_info=mixup_info)
                     else:
                         loss = self.criterion(output, target)
@@ -92,7 +102,7 @@ class Trainer:
                 self.scaler.update()
             else:
                 output = self.model(data)
-                if mixup_info is not None:
+                if mixup_info is not None and hasattr(self.criterion, 'forward'):
                     loss = self.criterion(output, target, mixup_info=mixup_info)
                 else:
                     loss = self.criterion(output, target)
@@ -116,7 +126,7 @@ class Trainer:
         
         return total_loss / len(train_loader), acc
     
-    def validate(self, val_loader) -> Tuple[float, float]:
+    def validate(self, val_loader) -> Tuple[float, float, list, list]:
         """验证"""
         self.model.eval()
         total_loss = 0
