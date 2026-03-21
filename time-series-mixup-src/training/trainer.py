@@ -10,8 +10,7 @@ import numpy as np
 from typing import Optional, Dict, Any, Tuple
 import time
 
-# 使用绝对导入
-from losses.focal_loss import FocalLoss, AdaptiveFocalLoss
+from losses.focal_loss import FocalLoss, AdaptiveFocalLoss, MixupAwareFocalLoss
 
 
 class Trainer:
