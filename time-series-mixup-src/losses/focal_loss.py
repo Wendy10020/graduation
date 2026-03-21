@@ -1,9 +1,11 @@
+# losses/focal_loss.py
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing import Optional, Dict, Any
 
 class FocalLoss(nn.Module):
-    """Focal Loss"""
+    """Focal Loss - 支持mixup_info参数"""
     
     def __init__(self, alpha=None, gamma=2.0, reduction='mean'):
         super().__init__()
@@ -11,7 +13,13 @@ class FocalLoss(nn.Module):
         self.gamma = gamma
         self.reduction = reduction
         
-    def forward(self, inputs, targets):
+    def forward(self, inputs, targets, mixup_info: Optional[Dict] = None):
+        """
+        Args:
+            inputs: 模型输出
+            targets: 真实标签
+            mixup_info: mixup信息（可选，用于兼容adaptive_mixup）
+        """
         if targets.dim() == 2:
             targets = torch.argmax(targets, dim=1)
         
@@ -32,69 +40,21 @@ class FocalLoss(nn.Module):
         
         loss = focal_weight * ce_loss
         
+        # 如果提供了mixup_info，可以根据策略调整损失
+        if mixup_info is not None:
+            strategy = mixup_info.get('strategy', '')
+            mixup_lambda = mixup_info.get('lambda', 1.0)
+            
+            if strategy == 'intra_class':
+                # 同类mixup：保持原损失
+                pass
+            elif strategy == 'inter_class':
+                # 异类mixup：稍微降低权重
+                loss = loss * 0.9
+        
         if self.reduction == 'mean':
             return loss.mean()
         elif self.reduction == 'sum':
             return loss.sum()
         else:
             return loss
-
-class AdaptiveFocalLoss(nn.Module):
-    """自适应Focal Loss"""
-    
-    def __init__(self, class_statistics=None, base_gamma=2.0, gamma_range=(1.0, 5.0)):
-        super().__init__()
-        self.class_statistics = class_statistics
-        self.base_gamma = base_gamma
-        self.gamma_range = gamma_range
-        self.class_gammas = None
-        
-    def compute_class_gammas(self, class_distribution):
-        if class_distribution is None:
-            return None
-            
-        total_samples = sum(class_distribution.values())
-        n_classes = len(class_distribution)
-        avg_samples = total_samples / n_classes
-        
-        class_gammas = {}
-        for cls, n_samples in class_distribution.items():
-            ratio = n_samples / avg_samples
-            
-            if ratio > 1:
-                gamma = self.base_gamma + (ratio - 1) * 0.5
-            else:
-                gamma = self.base_gamma - (1 - ratio) * 1.0
-                
-            gamma = max(self.gamma_range[0], min(self.gamma_range[1], gamma))
-            class_gammas[cls] = gamma
-            
-        return class_gammas
-    
-    def forward(self, inputs, targets):
-        if self.class_gammas is None and self.class_statistics is not None:
-            self.class_gammas = self.compute_class_gammas(
-                self.class_statistics.get('class_distribution', {})
-            )
-        
-        if self.class_gammas is not None:
-            losses = []
-            for cls in torch.unique(targets):
-                mask = targets == cls
-                if mask.sum() > 0:
-                    cls_inputs = inputs[mask]
-                    cls_targets = targets[mask]
-                    gamma = self.class_gammas[cls.item()]
-                    focal_loss = FocalLoss(gamma=gamma, reduction='none')
-                    cls_loss = focal_loss(cls_inputs, cls_targets)
-                    losses.append(cls_loss)
-            
-            if losses:
-                loss = torch.cat(losses).mean()
-            else:
-                loss = torch.tensor(0.0, device=inputs.device)
-        else:
-            focal_loss = FocalLoss(gamma=self.base_gamma)
-            loss = focal_loss(inputs, targets)
-            
-        return loss

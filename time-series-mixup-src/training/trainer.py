@@ -59,7 +59,8 @@ class Trainer:
             return AdaptiveFocalLoss(class_statistics)
         else:
             return nn.CrossEntropyLoss()
-    
+       
+    # training/trainer.py 中的 train_epoch 方法修改
     def train_epoch(self, train_loader, augmentation=None) -> Tuple[float, float]:
         """训练一个epoch"""
         self.model.train()
@@ -76,40 +77,52 @@ class Trainer:
             if augmentation is not None:
                 if hasattr(augmentation, 'forward'):
                     result = augmentation(data, target)
-                    if isinstance(result, tuple) and len(result) == 3:
-                        data, target, mixup_info = result
-                    elif isinstance(result, tuple) and len(result) == 2:
+                    if isinstance(result, tuple):
+                        if len(result) == 3:
+                            data, target, mixup_info = result
+                        elif len(result) == 2:
+                            data, target = result
+                    else:
                         data, target = result
-            else:
-                data, target = data, target
             
-            # 前向传播
+            # 确保数据在正确的设备上
+            data = data.to(self.device)
+            target = target.to(self.device)
+            
             self.optimizer.zero_grad()
             
             if self.use_amp:
                 with autocast():
                     output = self.model(data)
-                    if mixup_info is not None and hasattr(self.criterion, 'forward'):
-                        loss = self.criterion(output, target, mixup_info=mixup_info)
+                    # 兼容不同的损失函数签名
+                    if mixup_info is not None:
+                        try:
+                            loss = self.criterion(output, target, mixup_info=mixup_info)
+                        except TypeError:
+                            # 如果损失函数不支持mixup_info，忽略它
+                            loss = self.criterion(output, target)
                     else:
                         loss = self.criterion(output, target)
                 
                 self.scaler.scale(loss).backward()
                 self.scaler.unscale_(self.optimizer)
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), 
-                                               self.config['hyperparameters']['gradient_clip'])
+                                            self.config['hyperparameters']['gradient_clip'])
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
             else:
                 output = self.model(data)
-                if mixup_info is not None and hasattr(self.criterion, 'forward'):
-                    loss = self.criterion(output, target, mixup_info=mixup_info)
+                if mixup_info is not None:
+                    try:
+                        loss = self.criterion(output, target, mixup_info=mixup_info)
+                    except TypeError:
+                        loss = self.criterion(output, target)
                 else:
                     loss = self.criterion(output, target)
                 
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(),
-                                              self.config['hyperparameters']['gradient_clip'])
+                                            self.config['hyperparameters']['gradient_clip'])
                 self.optimizer.step()
             
             # 统计

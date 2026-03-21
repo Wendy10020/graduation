@@ -25,24 +25,39 @@ class BaseDatasetManager(ABC):
         """加载训练和测试数据"""
         pass
     
+    # data/dataset_manager.py 修改 get_dataloaders 方法
+    # data/dataset_manager.py 修改 get_dataloaders 方法
     def get_dataloaders(self, batch_size: int, shuffle: bool = True,
-                        num_workers: int = 2) -> Tuple[DataLoader, DataLoader]:
-        """获取训练和测试数据加载器"""
+                    num_workers: int = 2, drop_last: bool = False) -> Tuple[DataLoader, DataLoader]:
+        """
+        获取训练和测试数据加载器
+    
+        Args:
+            batch_size: 批次大小
+            shuffle: 是否打乱
+            num_workers: 工作进程数
+            drop_last: 是否丢弃最后一个不完整的批次（小数据集应设为False）
+        """
         if self.train_data is None or self.test_data is None:
             self.load_data()
-            
+    
+        # 对于小数据集，自动禁用 drop_last
+        if len(self.train_labels) < batch_size * 2:
+            drop_last = False
+            print(f"Small dataset detected ({len(self.train_labels)} samples), setting drop_last=False")
+    
         train_dataset = TimeSeriesDataset(self.train_data, self.train_labels)
         test_dataset = TimeSeriesDataset(self.test_data, self.test_labels)
-        
+    
         train_loader = DataLoader(
             train_dataset, batch_size=batch_size, shuffle=shuffle,
-            num_workers=num_workers, pin_memory=True, drop_last=True
+            num_workers=num_workers, pin_memory=True, drop_last=drop_last
         )
         test_loader = DataLoader(
             test_dataset, batch_size=batch_size, shuffle=False,
             num_workers=num_workers, pin_memory=True
         )
-        
+    
         return train_loader, test_loader
     
     def get_dataset_info(self) -> Dict[str, Any]:

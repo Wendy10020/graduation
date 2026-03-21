@@ -1,10 +1,11 @@
+# augmentations/mixup.py
 import torch
 import numpy as np
 from typing import Optional
 from .base_augmentation import BaseAugmentation
 
 class Mixup(BaseAugmentation):
-    """标准Mixup增强"""
+    """标准Mixup增强 - 修复设备问题"""
     
     def __init__(self, alpha: float = 1.0, do_prob: float = 1.0):
         super().__init__(do_prob)
@@ -15,12 +16,15 @@ class Mixup(BaseAugmentation):
             return x, y
             
         batch_size = x.shape[0]
+        device = x.device  # 获取输入数据的设备
         
-        perm = torch.randperm(batch_size)
+        # 在正确的设备上生成随机排列
+        perm = torch.randperm(batch_size, device=device)
         x_shuffled = x[perm]
         y_shuffled = y[perm]
         
-        lam = torch.distributions.Beta(self.alpha, self.alpha).sample((batch_size,))
+        # 在正确的设备上生成lambda
+        lam = torch.distributions.Beta(self.alpha, self.alpha).sample((batch_size,)).to(device)
         lam = lam.view(-1, *([1] * (x.dim() - 1)))
         
         x_mixed = lam * x + (1 - lam) * x_shuffled
